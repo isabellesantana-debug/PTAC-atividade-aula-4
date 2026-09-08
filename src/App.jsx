@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 
 function App() {
@@ -15,7 +14,7 @@ function App() {
         setErro("");
 
         const resposta = await fetch(
-          "https://jsonplaceholder.typicode.com/users",
+          "https://jsonplaceholder.typicode.com/usuariosenterrado",
           {
             signal: controller.signal,
           }
@@ -25,8 +24,7 @@ function App() {
           throw new Error(`HTTP ${resposta.status}`);
         }
 
-        const data = []
-        
+        const data = await resposta.json();
 
         setUsuarios(data);
       } catch (error) {
@@ -65,7 +63,7 @@ function App() {
       <h1>Usuários</h1>
 
       <ul>
-        {usuarios.map((usuario) => (
+        {usuarios.slice(0, 10).map((usuario) => (
           <li key={usuario.id}>{usuario.name}</li>
         ))}
       </ul>
@@ -74,4 +72,3 @@ function App() {
 }
 
 export default App;
-
