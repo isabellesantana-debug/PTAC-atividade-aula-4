@@ -1,32 +1,74 @@
-async function buscarUsuarios() {
-  try {
-    setCarregando(true);
-    setErro("");
+import { useEffect, useState } from "react";
 
-    await new Promise((resolve) => setTimeout(resolve, 5000));
+function App() {
+  const [usuarios, setUsuarios] = useState([]);
+  const [carregando, setCarregando] = useState(true);
+  const [erro, setErro] = useState("");
 
-    const resposta = await fetch(
-      "https://jsonplaceholder.typicode.com/users",
-      {
-        signal: controller.signal,
+  useEffect(() => {
+    const controller = new AbortController();
+
+    async function buscarUsuarios() {
+      try {
+        setCarregando(true);
+        setErro("");
+
+        const resposta = await fetch(
+          "https://jsonplaceholder.typicode.com/usuariosenterrado",
+          {
+            signal: controller.signal,
+          }
+        );
+
+        if (!resposta.ok) {
+          throw new Error(`HTTP ${resposta.status}`);
+        }
+
+        const data = await resposta.json();
+
+        setUsuarios(data);
+      } catch (error) {
+        if (error.name === "AbortError") {
+          console.log("Requisição cancelada.");
+          return;
+        }
+
+        setErro(error.message);
+      } finally {
+        setCarregando(false);
       }
-    );
-
-    if (!resposta.ok) {
-      throw new Error(`HTTP ${resposta.status}`);
     }
 
-    const data = await resposta.json();
+    buscarUsuarios();
 
-    setUsuarios(data);
-  } catch (error) {
-    if (error.name === "AbortError") {
-      console.log("Requisição cancelada.");
-      return;
-    }
+    return () => {
+      controller.abort();
+    };
+  }, []);
 
-    setErro(error.message);
-  } finally {
-    setCarregando(false);
+  if (carregando) {
+    return <h2>Carregando...</h2>;
   }
+
+  if (erro) {
+    return <h2>Erro: {erro}</h2>;
+  }
+
+  if (usuarios.length === 0) {
+    return <h2>Nenhum usuário encontrado.</h2>;
+  }
+
+  return (
+    <div>
+      <h1>Usuários</h1>
+
+      <ul>
+        {usuarios.slice(0, 10).map((usuario) => (
+          <li key={usuario.id}>{usuario.name}</li>
+        ))}
+      </ul>
+    </div>
+  );
 }
+
+export default App;
