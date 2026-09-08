@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
-function App() {
-  const [usuarios, setUsuarios] = useState([]);
+function StatusAPI() {
+  const [itens, setItens] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
 
@@ -14,7 +14,7 @@ function App() {
         setErro("");
 
         const resposta = await fetch(
-          "https://jsonplaceholder.typicode.com/usuariosenterrado",
+          "https://jsonplaceholder.typicode.com/users",
           {
             signal: controller.signal,
           }
@@ -26,7 +26,7 @@ function App() {
 
         const data = await resposta.json();
 
-        setUsuarios(data);
+        setItens(data);
       } catch (error) {
         if (error.name === "AbortError") {
           console.log("Requisição cancelada.");
@@ -47,26 +47,26 @@ function App() {
   }, []);
 
   if (carregando) {
-    return <h2>Carregando...</h2>;
+    return <p>Carregando...</p>;
   }
 
   if (erro) {
-    return <h2>Erro: {erro}</h2>;
+    return <p>Erro: {erro}</p>;
   }
 
-  if (usuarios.length === 0) {
-    return <h2>Nenhum usuário encontrado.</h2>;
+  if (itens.length === 0) {
+    return <p>Nenhum item encontrado.</p>;
   }
 
+  return <p>Sucesso: {itens.length} itens carregados.</p>;
+}
+
+function App() {
   return (
     <div>
-      <h1>Usuários</h1>
+      <h1>Status da API</h1>
 
-      <ul>
-        {usuarios.slice(0, 10).map((usuario) => (
-          <li key={usuario.id}>{usuario.name}</li>
-        ))}
-      </ul>
+      <StatusAPI />
     </div>
   );
 }
